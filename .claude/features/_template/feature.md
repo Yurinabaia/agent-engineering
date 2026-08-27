@@ -109,9 +109,31 @@ Tabela: `{snake_case}` — Precisa de auditoria (`rec_created_by/on`, `rec_modif
 
 - {Chave de outra feature que precisa vir antes, ou "nenhuma"}
 
-## Perguntas em Aberto
+## Perguntas e Premissas
 
-- [ ] {ambiguidade que precisa de resposta do PO antes de planejar}
+Levantadas com `.claude/references/feature-discovery-questions.md`.
+As três listas são obrigatórias — escreva "nenhuma" em vez de omitir a seção.
 
-> Se houver pergunta em aberto que muda o modelo de dados ou o contrato da API, a feature entra
-> como ⛔ bloqueada — não planeje em cima de suposição sobre schema ou contrato.
+### Respondidas
+
+| Ref | Pergunta | Resposta | Fonte |
+|---|---|---|---|
+| A2 | {quem pode ler/escrever} | {resposta} | descrição do Jira |
+| B1 | {tipo e tamanho de campo} | {resposta} | comentário do PO / código existente |
+
+### Premissas assumidas (🟡 — sem resposta, default aplicado)
+
+| Ref | Premissa | Base | Custo se estiver errada |
+|---|---|---|---|
+| A5 | {ex.: menos de 500 registros → sem paginação} | default do projeto | refazer o endpoint com paginação |
+
+### Em aberto
+
+| Ref | Pergunta | Classe | O que muda no código |
+|---|---|---|---|
+| A3 | {ex.: excluir apaga ou inativa?} | 🔴 | campo `ativo` + migration |
+| C6 | {ex.: precisa exportar para Excel?} | 🟢 | ação extra na listagem |
+
+> Enquanto houver 🔴 em aberto, a feature fica ⛔ **bloqueada** — não se planeja schema nem
+> contrato de API em cima de suposição. 🟡 e 🟢 não bloqueiam: assuma, registre e siga.
+> Para aprofundar o levantamento: `/feature-questions <CHAVE>`.

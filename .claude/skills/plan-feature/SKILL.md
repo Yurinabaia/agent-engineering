@@ -25,10 +25,14 @@ coluna e os comandos de validação — tudo mastigado.
 
 ## Fase 1 — Ler o requisito
 
-1. Leia o `feature.md` **inteiro**.
-2. Se houver pergunta em aberto que afete **modelo de dados ou contrato da API**, pare e pergunte
-   ao usuário. Não planeje schema em cima de suposição.
-3. Liste as regras de negócio (RN1..RNn) e os critérios de aceite (CA1..CAn) — cada um precisará
+1. Leia o `feature.md` **inteiro** — inclusive a seção **Perguntas e Premissas**.
+2. Se houver pergunta 🔴 em aberto (schema, migration ou contrato da API), **pare e pergunte**.
+   Não planeje schema em cima de suposição. Precisa levantar o que falta?
+   `/feature-questions <CHAVE>`.
+3. As **premissas assumidas** entram no plano como decisões explícitas, na seção "Riscos e
+   decisões", com o custo de estarem erradas. Premissa que ninguém repete no plano vira surpresa
+   na revisão.
+4. Liste as regras de negócio (RN1..RNn) e os critérios de aceite (CA1..CAn) — cada um precisará
    de um destino no plano.
 
 ## Fase 2 — Ancorar no código real
@@ -38,6 +42,8 @@ Sempre carregue:
 - `.claude/references/clean-architecture-dotnet.md`
 - `.claude/references/dotnet-testing-standards.md`
 - `.claude/references/backend-api-best-practices.md`
+- `.claude/references/feature-discovery-questions.md` — Bloco B, para conferir se o requisito
+  respondeu tudo que o código precisa saber
 
 Depois investigue o código (use o agente `research-agent` em paralelo quando a feature tocar
 várias áreas):

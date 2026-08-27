@@ -249,6 +249,10 @@ Toda feature entra pelo **Jira** e desce pela esteira:
 Atalho de ponta a ponta: `/end-to-end-feature PROJ-123` (API e depois tela).
 
 Regras da esteira:
+- **Requisito incompleto não vira plano.** Toda feature passa pelo questionário de descoberta
+  (`.claude/references/feature-discovery-questions.md`) na importação. Pergunta que muda schema,
+  migration ou contrato da API é **bloqueante**; o resto assume o default do projeto e fica
+  **registrado como premissa** no `feature.md`.
 - Nenhum código é escrito antes do plano aprovado (`plan.md` / `plan-ui.md`).
 - **O contrato da API é a fonte da verdade da tela.** O model TypeScript espelha o DTO; se
   divergirem, quem está errado é o frontend.

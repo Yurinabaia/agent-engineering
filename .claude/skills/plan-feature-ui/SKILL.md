@@ -31,6 +31,11 @@ Do `feature.md`:
 
 Se houver mockup ou protótipo anexado no Jira/Confluence, ele manda no layout.
 
+Confira contra o **Bloco C** de `.claude/references/feature-discovery-questions.md`: telas e
+navegação, colunas e formato da listagem, campos e componente PO de cada um, ações destrutivas,
+mensagens de sucesso e estado vazio. O que não estiver respondido ali e não tiver default entra
+como premissa registrada, não como invenção silenciosa.
+
 **Pergunta aberta sobre navegação ou sobre qual campo é editável não bloqueia — assuma o padrão
 do app e registre.** Pergunta aberta sobre **qual endpoint existe** bloqueia: confirme antes.
 

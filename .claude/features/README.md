@@ -30,6 +30,7 @@ Uma feature só de backend não tem `plan-ui.md`/`checklist-ui.md` — e o `feat
 
 ```bash
 /feature-from-jira PROJ-123   # Jira → feature.md (escopo de API e de tela)
+/feature-questions PROJ-123   # opcional: aprofunda o levantamento e lista o que falta
 
 # trilha API
 /plan-feature PROJ-123        # feature.md → plan.md
@@ -64,6 +65,7 @@ Sem acesso ao Jira? `/feature-from-jira` aceita o texto da issue colado no promp
 
 ## Referências
 
+- `.claude/references/feature-discovery-questions.md` — o questionário de descoberta
 - `.claude/references/jira-feature-workflow.md` — mapeamento de campos do Jira e estados
 - `.claude/references/clean-architecture-dotnet.md` — templates de código por camada (API)
 - `.claude/references/dotnet-testing-standards.md` — padrões de teste da API

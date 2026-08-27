@@ -167,6 +167,43 @@ Situação (`type: 'boolean'` com `trueLabel: 'Ativo'` / `falseLabel: 'Inativo'`
 
 Nenhuma.
 
-## Perguntas em Aberto
+## Perguntas e Premissas
 
-Nenhuma — feature de demonstração, requisitos fechados.
+Levantadas com `.claude/references/feature-discovery-questions.md`.
+
+### Respondidas
+
+| Ref | Pergunta | Resposta | Fonte |
+|---|---|---|---|
+| A1 | Como resolvem hoje? | Planilha compartilhada do time de catálogo | descrição da issue |
+| A2 | Quem lê e quem escreve? | Leitura: qualquer usuário do portal. Escrita: Admin | descrição da issue |
+| A3 | Pode ser alterado? Excluir apaga ou inativa? | Alterável; nesta entrega o DELETE apaga (regra de "não excluir vendido" fica com Vendas) | contexto de negócio da issue |
+| A4 | O que nunca pode acontecer? | SKU duplicado (409), preço ≤ 0 (400), nome vazio ou > 200 (400) | RN1, RN3, RN4 |
+| A6 | Precisa saber quem alterou e quando? | Sim — catálogo é auditado trimestralmente | contexto de negócio da issue |
+| B1 | Tipo do preço? | `decimal(18,2)` — dinheiro nunca em ponto flutuante | default do projeto |
+| B2 | Tem relacionamento? | Não nesta entrega (categoria fica fora de escopo) | fora de escopo |
+| B8 | Tabela nova ou existente? | Nova (`produtos`) — sem backfill | verificado no `ApplicationDbContext.cs` |
+| C1 | Quantas telas? | Listagem + formulário (criação e edição na mesma tela) | padrão do app |
+
+### Premissas assumidas (🟡 — sem resposta, default aplicado)
+
+| Ref | Premissa | Base | Custo se estiver errada |
+|---|---|---|---|
+| A5 | Menos de 500 produtos → sem paginação no backend, filtro client-side | default do projeto (< 500 registros) | refazer o `GET` com `PagedResponseContract` e ajustar a listagem |
+| B5 | Filtro busca por SKU e nome | default do projeto | acrescentar campos ao filtro |
+| B6 | Sem controle de concorrência otimista | default do projeto | duas edições simultâneas: a última vence, silenciosamente |
+| C1 | Depois de salvar, volta para a listagem | default do projeto | trocar a navegação pós-save |
+| C3 | SKU é editável só na criação | inferido da RN2 (SKU é a chave natural) | liberar edição de SKU e tratar o impacto em unicidade |
+
+### Em aberto
+
+| Ref | Pergunta | Classe | O que muda no código |
+|---|---|---|---|
+| C6 | Precisa exportar a lista para Excel? | 🟢 | ação extra na listagem |
+| D1 | Alguém precisa ser avisado quando um produto é excluído? | 🟢 | log ou notificação |
+
+Nenhuma 🔴 em aberto — feature liberada para planejamento.
+
+> Na apresentação: esta seção é a prova de que o questionário **não é burocracia**. Das 9
+> respondidas, 2 vieram do código (B2 e B8) sem ninguém ser incomodado; das 5 premissas, cada uma
+> tem o custo de estar errada escrito ao lado.

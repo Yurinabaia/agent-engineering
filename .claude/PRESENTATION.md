@@ -101,6 +101,19 @@ critérios de aceite **verificáveis**, modelo de dados com colunas em snake_cas
 o **Escopo Frontend**: telas, rotas, o componente PO de cada campo e os critérios de aceite de
 tela (CAT1..CAT7).
 
+Desça até **Perguntas e Premissas** — é o trecho que mais gera conversa na plateia:
+
+- **Respondidas**, com a fonte de cada uma. Duas vieram do próprio código, sem incomodar ninguém.
+- **Premissas assumidas**, cada uma com o **custo de estar errada** escrito ao lado.
+- **Em aberto**, classificadas: 🔴 bloqueia, 🟡 assume-se com default, 🟢 pode esperar.
+
+A regra que separa as três cabe numa frase: *"errar isso me obriga a escrever outra migration ou
+mudar a assinatura de um endpoint?"* — se sim, é bloqueante.
+
+Abra `references/feature-discovery-questions.md` e mostre **a coluna "o que decide"**: cada
+pergunta existe porque resolve uma linha de código. "Que combinação é única?" não é papo de
+analista — é o índice `uq_produtos_sku` e o erro 409.
+
 Uma issue, duas trilhas, uma pasta:
 
 ```
@@ -138,6 +151,16 @@ Enquanto roda, narre: ele lê a solução, os `.csproj` (para provar a direção
 
 Mostre a tradução de negócio para camadas: *"SKU único"* virou índice `uq_produtos_sku` **e** erro
 409 **e** um teste.
+
+Se quiser mostrar o levantamento em ação, rode:
+
+```
+/feature-questions DEMO-101
+```
+
+Ele responde o que consegue sozinho (issue + código + defaults) e devolve **só** as lacunas, com
+a opção que assumiria em cada uma. Frase para acompanhar: *"a habilidade não é fazer perguntas —
+é não fazer as que já têm resposta."*
 
 ### Passo 4 — Planejar (4 min)
 
@@ -263,6 +286,11 @@ Três redes: o `plan.md` fixa a ordem, o `code-reviewer` trata violação de cam
 **"Preciso do Jira para usar isso?"**
 Não. `/feature-from-jira` aceita o texto colado, e dá para criar o `feature.md` do `_template/`.
 Perde-se a rastreabilidade automática, não a esteira.
+
+**"Na prática o PO nunca responde tudo. E aí?"**
+Por isso as perguntas são classificadas. Só o que muda schema ou contrato trava a feature — o
+resto assume o default do projeto e fica **registrado como premissa, com o custo de estar
+errada**. É a diferença entre uma suposição escrita e uma suposição escondida no código.
 
 **"Isso substitui o desenvolvedor?"**
 Não. Ele decide o requisito, aprova o plano e revisa a revisão — os três pontos onde errar sai

@@ -31,6 +31,11 @@ issue ou confirmar a criação a partir do `_template/`. A esteira continua norm
 Leia a issue inteira e **destile** — não copie. O critério: um parágrafo só entra no `feature.md`
 se ele muda uma decisão de código.
 
+Use `.claude/references/feature-discovery-questions.md` como roteiro: ele lista, por bloco, o que
+uma feature precisa ter respondido para virar código, e **o que cada resposta decide**. Você não
+faz essas perguntas ao usuário aqui — você as usa para saber **o que procurar** na issue e no
+código, e o que está faltando.
+
 Extraia, nesta ordem:
 
 1. **Objetivo** — uma frase de negócio.
@@ -49,7 +54,16 @@ Extraia, nesta ordem:
    registre o link. **Sem tela? Escreva "Sem escopo de tela"** em vez de deixar a seção em branco,
    para não deixar dúvida se foi esquecimento.
 6. **Fora de escopo** — o que a issue explicitamente não cobre.
-7. **Dependências** e **Perguntas em aberto**.
+7. **Dependências**.
+8. **Perguntas e premissas** — passe o banco de perguntas sobre o que você destilou e separe em
+   três listas: **respondidas** (com a fonte), **premissas assumidas** (com o default aplicado e o
+   custo se estiver errado) e **em aberto**. Classifique as em aberto:
+   - 🔴 **bloqueante** — muda schema, migration ou contrato da API
+   - 🟡 **assumível** — há default de projeto; assuma e registre
+   - 🟢 **opcional** — só refina
+
+   Regra para decidir: *"errar isso me obriga a escrever outra migration ou mudar a assinatura de
+   um endpoint?"* Se sim, é 🔴.
 
 Antes de escrever, dê uma olhada rápida no código para ancorar o escopo técnico:
 - `Services/` para ver se já existe feature parecida a espelhar
@@ -81,8 +95,7 @@ Adicione (ou atualize) a linha da feature em `features/INDEX.md`:
 | PROJ-123 | Cadastro de Produtos | 📥 importada | [PROJ-123-cadastro-produtos](PROJ-123-cadastro-produtos/) | AAAA-MM-DD |
 ```
 
-Estado inicial: `📥 importada` — ou `⛔ bloqueada` se houver pergunta em aberto que afete
-modelo de dados ou contrato da API.
+Estado inicial: `📥 importada` — ou `⛔ bloqueada` se sobrou alguma pergunta 🔴 em aberto.
 
 ## Saída
 
@@ -101,9 +114,18 @@ O que a feature faz, para quem, e qual é a regra mais crítica.
 - Camadas afetadas
 - Telas e rotas do frontend, com os componentes PO previstos (ou "sem escopo de tela")
 
+### Cobertura do Questionário
+Quantas perguntas do banco ficaram respondidas, assumidas e em aberto — e, principalmente, as que
+você respondeu sozinho pelo código (com a fonte). Feature bem descrita pode sair com zero
+perguntas em aberto.
+
 ### Pendências
-- Perguntas em aberto (se houver) e se elas bloqueiam o planejamento
+- 🔴 Bloqueantes: cada uma com a opção sugerida e o que muda no código
+- 🟡 Premissas assumidas: o que foi assumido e o custo se estiver errado
+- 🟢 Podem esperar
 - Dependências de outras features
+
+Precisa aprofundar o levantamento? `/feature-questions <CHAVE>`.
 
 ### Próximo Passo
 `/plan-feature <CHAVE>` e, havendo tela, `/plan-feature-ui <CHAVE>` depois — ou, se bloqueada, o

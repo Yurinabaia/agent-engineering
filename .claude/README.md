@@ -73,6 +73,7 @@ Onde parei: `/feature-status`
 | `/prime-backend` | carrega a solução, as camadas e uma fatia vertical completa |
 | `/prime-frontend` | carrega o app Angular, o PO-UI e uma tela completa |
 | `/feature-from-jira` | importa e destila a issue do Jira (API + tela) |
+| `/feature-questions` | roda o questionário de descoberta e devolve só as lacunas reais |
 | `/plan-feature` | plano da API, camada a camada |
 | `/plan-feature-ui` | plano da tela, com os componentes PO escolhidos |
 | `/execute` | implementa a API, compilando entre as camadas |
@@ -108,6 +109,7 @@ paralelo.
 | `clean-architecture-dotnet.md` | template de código de cada camada da API |
 | `dotnet-testing-standards.md` | xUnit + Moq, nomes e cobertura mínima |
 | `backend-api-best-practices.md` | rotas, status, validação, paginação, segurança |
+| `feature-discovery-questions.md` | banco de perguntas de negócio e técnicas, com o que cada uma decide |
 | `angular-po-ui.md` | estrutura, service, listagem, formulário e catálogo PO |
 | `angular-testing-standards.md` | Jasmine/Karma, TestBed, mocks do PO |
 | `frontend-component-best-practices.md` | princípios gerais de componente |

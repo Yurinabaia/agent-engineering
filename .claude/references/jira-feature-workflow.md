@@ -79,6 +79,24 @@ O que a skill `feature-from-jira` extrai de `mcp__atlassian__getJiraIssue`:
 **Regra de ouro:** o `feature.md` é uma **destilação**, não um dump. Se um parágrafo do Jira não
 muda uma decisão de código, ele não entra.
 
+### O que a issue quase nunca traz
+
+Uma issue bem escrita responde talvez metade do que o código precisa saber. O resto sai do
+**banco de perguntas** (`.claude/references/feature-discovery-questions.md`), que separa o que é
+de negócio do que é técnico e diz o que cada resposta decide.
+
+Ordem de busca antes de perguntar a um humano: **issue → épico pai → código existente → defaults
+do projeto**. Só o que sobrar vira pergunta — e classificada:
+
+| | Critério | Consequência |
+|---|---|---|
+| 🔴 bloqueante | muda schema, migration ou contrato da API | feature vai para ⛔ bloqueada |
+| 🟡 assumível | há default de projeto | assuma e registre a premissa |
+| 🟢 opcional | só refina | anota e segue |
+
+As três listas (respondidas, premissas, em aberto) ficam na seção **Perguntas e Premissas** do
+`feature.md` — é ela que o `/plan-feature` lê para saber se pode planejar.
+
 ---
 
 ## Traduzindo requisito de negócio para camadas
