@@ -16,11 +16,16 @@ argument-hint: [CHAVE-JIRA]
    | Existe | Estado real |
    |---|---|
    | só `feature.md` | 📥 importada |
-   | `plan.md` sem item marcado no `checklist.md` | 📋 planejada |
-   | `checklist.md` com itens marcados e outros não | ⚙️ em execução |
+   | plano sem item marcado no checklist | 📋 planejada |
+   | checklist com itens marcados e outros não | ⚙️ em execução |
    | checklist completo, sem commit | 🔍 em revisão |
    | checklist completo + commit com a chave | ✅ concluída |
    | pergunta em aberto não resolvida no `feature.md` | ⛔ bloqueada |
+
+   Numa feature fullstack há **duas trilhas** (`plan.md`/`checklist.md` e
+   `plan-ui.md`/`checklist-ui.md`). Reporte o estado de cada uma; o estado da feature é o **menos
+   avançado** dos dois. Feature com "Sem escopo de tela" no `feature.md` tem só a trilha API —
+   ausência de `plan-ui.md` ali não é pendência.
 
 4. Corrija o `INDEX.md` onde ele divergir da realidade.
 
@@ -34,18 +39,19 @@ git log --oneline --grep="<CHAVE>"
 
 Mostre:
 - Cabeçalho do `feature.md` (título, tipo, épico, estado)
-- Critérios de aceite: quantos marcados de quantos
-- Checklist por camada: quais camadas fechadas, qual está aberta
-- Divergências registradas no checklist
+- Critérios de aceite: quantos marcados de quantos (API e tela, separados)
+- Checklist da API: quais camadas fechadas, qual está aberta
+- Checklist da tela: quais etapas fechadas, qual está aberta
+- Divergências registradas nos checklists
 - Último commit relacionado
 
 ## Saída
 
 ### Esteira
 
-| Chave | Título | Estado | Próximo comando |
-|---|---|---|---|
-| ... | ... | ... | `/plan-feature ...` |
+| Chave | Título | API | Tela | Estado | Próximo comando |
+|---|---|---|---|---|---|
+| ... | ... | ✅ | ⚙️ | ⚙️ em execução | `/execute-ui ...` |
 
 ### Atenção
 - Features bloqueadas e o que falta responder

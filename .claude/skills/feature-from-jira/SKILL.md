@@ -1,6 +1,6 @@
 ---
 name: feature-from-jira
-description: Importa uma issue do Jira e materializa a pasta da feature em features/<CHAVE>-<slug>/ com o requisito destilado em feature.md, pronto para o /plan-feature. Use ao iniciar qualquer trabalho novo que tenha um ticket. Aceita fallback manual quando o MCP do Atlassian está indisponível.
+description: Importa uma issue do Jira e materializa a pasta da feature em features/<CHAVE>-<slug>/ com o requisito destilado em feature.md — escopo de API e de tela — pronto para o /plan-feature e o /plan-feature-ui. Use ao iniciar qualquer trabalho novo que tenha um ticket. Aceita fallback manual quando o MCP do Atlassian está indisponível.
 argument-hint: <CHAVE-JIRA> [| texto da issue colado]
 ---
 
@@ -39,10 +39,15 @@ Extraia, nesta ordem:
    quando ela for violada. Regra sem status é regra incompleta.
 4. **Critérios de aceite** — verificáveis. "Deve funcionar bem" não é critério; reescreva ou
    registre como pergunta em aberto.
-5. **Escopo técnico** — traduza o requisito para as camadas respondendo às 8 perguntas de
+5. **Escopo técnico (API)** — traduza o requisito para as camadas respondendo às 8 perguntas de
    `.claude/references/jira-feature-workflow.md` §"Traduzindo requisito de negócio para camadas":
    endpoints (rota, verbo, policy), modelo de dados (campos, colunas snake_case, tipos,
    obrigatoriedade, índices, auditoria) e impacto por camada.
+5b. **Escopo frontend** — se a feature tiver tela, preencha também: telas e rotas, campos com o
+   componente PO correspondente, ações do usuário (e quais pedem confirmação), endpoints
+   consumidos e critérios de aceite de tela. Anexo com mockup ou protótipo manda no layout —
+   registre o link. **Sem tela? Escreva "Sem escopo de tela"** em vez de deixar a seção em branco,
+   para não deixar dúvida se foi esquecimento.
 6. **Fora de escopo** — o que a issue explicitamente não cobre.
 7. **Dependências** e **Perguntas em aberto**.
 
@@ -50,8 +55,10 @@ Antes de escrever, dê uma olhada rápida no código para ancorar o escopo técn
 - `Services/` para ver se já existe feature parecida a espelhar
 - `ApplicationDbContext.cs` para conferir se a tabela/entidade já existe
 - `Controllers/` para conferir se a rota já está tomada
+- `src/app/features/` e `app.routes.ts` para conferir se a tela ou a rota já existem
 
-Isso evita propor uma entidade que já existe ou uma rota duplicada.
+Isso evita propor uma entidade que já existe, uma rota de API duplicada ou uma tela que o app já
+tem.
 
 ## Passo 3 — Criar a pasta da feature
 
@@ -62,7 +69,9 @@ Isso evita propor uma entidade que já existe ou uma rota duplicada.
    destilação do Passo 2.
 4. Copie `features/_template/checklist.md` para `features/<slug>/checklist.md`, substituindo
    `{CHAVE-JIRA}`, `{Título}`, `{Feature}` e `{Nome}` pelos valores reais.
-5. Não crie o `plan.md` agora — ele é gerado por `/plan-feature`.
+   Havendo escopo de tela, copie também `features/_template/checklist-ui.md` para
+   `features/<slug>/checklist-ui.md`.
+5. Não crie os planos agora — eles são gerados por `/plan-feature` e `/plan-feature-ui`.
 
 ## Passo 4 — Registrar no índice
 
@@ -90,13 +99,15 @@ O que a feature faz, para quem, e qual é a regra mais crítica.
 - Endpoints (tabela)
 - Entidade e tabela nova/alterada
 - Camadas afetadas
+- Telas e rotas do frontend, com os componentes PO previstos (ou "sem escopo de tela")
 
 ### Pendências
 - Perguntas em aberto (se houver) e se elas bloqueiam o planejamento
 - Dependências de outras features
 
 ### Próximo Passo
-`/plan-feature <CHAVE>` — ou, se bloqueada, o que precisa ser respondido antes.
+`/plan-feature <CHAVE>` e, havendo tela, `/plan-feature-ui <CHAVE>` depois — ou, se bloqueada, o
+que precisa ser respondido antes.
 
 ## Regras
 

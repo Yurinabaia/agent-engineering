@@ -1,101 +1,116 @@
 ---
 name: prime-frontend
-description: Primes the agent with focused understanding of the frontend portion of the codebase — components, routing, state management, and styling — without loading unrelated backend code. Use at the start of a session when the work is scoped to UI or client-side features. Optionally pulls external task context from Jira issues and Confluence pages first.
-argument-hint: [jira-issue-keys] [confluence-page-ids]
+description: Carrega o contexto do frontend Angular com PO-UI — estrutura de features, services HTTP, interceptors, rotas lazy e uma tela completa de ponta a ponta — sem puxar o backend junto. Use no início de qualquer sessão de trabalho em tela. Aceita chaves do Jira e páginas do Confluence para ancorar o contexto na tarefa.
+argument-hint: [chaves-jira] [ids-confluence]
 ---
 
-# Prime Frontend: Load Frontend Context
+# Prime Frontend — contexto do Angular + PO-UI
 
-## Objective
+## Objetivo
 
-Build targeted understanding of the frontend codebase by analyzing its structure, components, and conventions. Loading only frontend context keeps the context window light on complex full-stack codebases. If external task references are provided, load them first so the analysis is anchored to the actual work.
+Entender o app o suficiente para criar uma tela nova no padrão do time.
+**Disciplina de escopo:** leia **uma** feature completa, não todas as telas do app.
 
-> **Scope discipline:** Limit all file reads to the frontend root and its dependencies. Do NOT load the entire codebase — on large repos this exhausts the context window before any useful work is done.
+## Passo 0 — Contexto externo (opcional)
 
-## Process
+Argumentos: `[chaves-jira] [ids-confluence]`.
 
-### Step 0: Load External Context
+**Jira** (`PROJ-12` ou `PROJ-12,PROJ-13`):
+1. `mcp__atlassian__getAccessibleAtlassianResources` → `cloudId`
+2. `mcp__atlassian__getJiraIssue` com `{ cloudId, issueIdOrKey, responseContentFormat: "markdown" }`
 
-**Run this step BEFORE the codebase analysis.** It accepts optional arguments: `[jira-issue-keys] [confluence-page-ids]`.
+**Confluence** (ids numéricos): `mcp__atlassian__getConfluencePage` com `contentFormat: "markdown"`.
+Protótipos e mockups anexados são contexto de primeira classe aqui — leia antes de olhar código.
 
-- Jira keys may be a single key (`PROJ-12`) or comma-separated (`PROJ-12,PROJ-13`).
-- Confluence page ids are numeric page ids.
+Sem argumentos, pule para o Passo 1. MCP fora do ar? Diga em uma linha e siga.
 
-**If Jira issue keys are provided:**
+## Passo 1 — Versões e dependências
 
-1. Call `mcp__atlassian__getAccessibleAtlassianResources` to obtain the `cloudId`.
-2. For each Jira key, call `mcp__atlassian__getJiraIssue` with that `cloudId`, the issue key, and `responseContentFormat: "markdown"`.
-3. Treat the returned issue summary, description, and acceptance criteria as the task context for everything that follows.
+```bash
+cat package.json
+cat angular.json | head -60
+```
 
-**If Confluence page ids are provided:**
+Registre:
+- Versão do **Angular** (17+ → control flow novo; 19+ → standalone por padrão)
+- Versão do **PO-UI** (`@po-ui/ng-components`, `@po-ui/ng-templates`, `@po-ui/style`)
+- Tema do PO carregado em `angular.json` → `styles`
+- Runner de teste (Karma/Jasmine ou Jest) e scripts de `build`, `test`, `lint`
+- Gerenciador de pacote pelo lockfile (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`)
 
-1. Call `mcp__atlassian__getConfluencePage` for each page id with `contentFormat: "markdown"` (use the `cloudId` from above, fetching it via `mcp__atlassian__getAccessibleAtlassianResources` if it was not already retrieved).
-2. Treat the returned page content as supporting context (specs, design docs, requirements).
+> Nunca assuma a API de um componente PO pela memória. Na dúvida, confira
+> `node_modules/@po-ui/ng-components` ou <https://po-ui.io> para a versão instalada.
 
-**If no arguments are provided:** Skip this step entirely and proceed to Step 1.
+## Passo 2 — Ler as regras
 
-Briefly summarize any external context loaded before continuing — this frames the rest of the priming.
+- `CLAUDE.md`
+- `.claude/references/angular-po-ui.md`
+- `.claude/references/angular-testing-standards.md`
+- `.claude/references/frontend-component-best-practices.md`
 
-### 1. Locate the Frontend
+## Passo 3 — Bootstrap e infra transversal
 
-List all tracked files to find the frontend root:
+- `src/app/app.config.ts` — providers: `provideRouter`, `provideHttpClient(withInterceptors(...))`,
+  **`provideAnimations()`** (exigido pelo PO-UI)
+- `src/app/app.routes.ts` — rotas raiz e lazy loading
+- `src/app/app.ts` / `app.html` — shell (`po-toolbar`, `po-menu`)
+- `src/app/core/interceptors/` — auth e erro. **Leia o de erro com atenção**: é ele que traduz o
+  `ProblemDetails` da API em `PoNotificationService`
+- `src/environments/` — `apiUrl` de cada ambiente
 
-!`git ls-files`
+## Passo 4 — Ler uma feature completa
 
-Common frontend roots: `frontend/`, `client/`, `web/`, `src/` (when project is frontend-only), `app/` (Next.js). Identify the correct root before proceeding.
+Escolha a feature mais simples em `src/app/features/` e leia **tudo** dela:
 
-### 2. Read Frontend Documentation
+1. `models/<x>.model.ts`
+2. `services/<x>.service.ts`
+3. `pages/<x>-list/<x>-list.component.ts` + `.html`
+4. `pages/<x>-form/<x>-form.component.ts` + `.html`
+5. `<x>.routes.ts`
+6. um `.spec.ts`
 
-- Read CLAUDE.md or similar global rules file (for project-wide conventions)
-- Read any README inside the frontend root
-- Read `.claude/references/frontend-component-best-practices.md` if it exists — it contains project-specific component conventions
+Esta fatia é o molde de tudo que você vai escrever depois. Anote quais **módulos PO** o projeto
+importa (granulares como `PoTableModule`, ou `PoModule` inteiro) e siga a mesma escolha.
 
-### 3. Identify Key Frontend Files
+## Passo 5 — Estado atual
 
-Based on the structure, read:
+```bash
+git log -10 --oneline
+git status
+```
 
-- Main entry point (`main.tsx`, `index.tsx`, `app/layout.tsx`, `pages/_app.tsx`, etc.)
-- Routing configuration (`router.tsx`, `routes.ts`, `app/` directory for Next.js)
-- Global state setup (store, context providers)
-- Shared component library root (`components/`, `ui/`)
-- Core configuration (`package.json`, `tsconfig.json`, `vite.config.ts`, `next.config.ts`)
-- One or two representative feature components to internalize the established patterns
+Confira também `features/INDEX.md` para ver quais features têm escopo de tela em aberto.
 
-Skip files outside the frontend root unless they define a shared type or contract the frontend depends on.
+## Relatório
 
-### 4. Understand Current Frontend State
+### Contexto Externo (se houver)
+Issue(s), página(s) e mockups: o que a tela precisa fazer.
 
-Check recent frontend-relevant activity:
+### Stack
+- Angular (versão), PO-UI (versão), tema aplicado
+- Standalone ou NgModules; signals em uso?
+- Runner de teste, gerenciador de pacote, scripts disponíveis
 
-!`git log -10 --oneline`
+### Estrutura
+- `core/`, `shared/`, `features/` — o que existe em cada
+- Features já implementadas
 
-!`git status`
+### Fatia de Referência
+Nome da feature lida e os caminhos, para servir de molde.
 
-Note any open changes in the frontend directory.
+### Padrões Internalizados
+- Nomenclatura de arquivo (`.component.ts` explícito ou padrão novo do CLI)
+- Como os services chamam a API e de onde vem a URL
+- Como o erro da API chega ao usuário (interceptor → `PoNotificationService`)
+- Quais componentes PO o projeto já usa e como (granular vs `PoModule`)
+- Padrão de formulário (reactive forms, grid `po-row`/`po-md-*`)
+- Padrão de teste
 
-## Output Report
+### Integração com a API
+Endpoints já consumidos e o formato de resposta esperado (array puro, `data`, ou
+`items`/`hasNext` dos templates dinâmicos do PO).
 
-Provide a concise summary covering:
+### Estado Atual
+Branch, mudanças recentes, pendências visíveis.
 
-### External Task Context (if loaded)
-- Jira issue(s): key, title, one-line goal, acceptance criteria
-- Confluence page(s): title and what they specify
-
-### Frontend Overview
-- Framework and major libraries (React, Vue, Next.js, Tailwind, etc.)
-- Component patterns observed (atomic design, feature folders, etc.)
-- State management approach
-
-### Directory Map
-- Frontend root and key sub-directories with one-line purpose each
-
-### Conventions
-- Naming conventions, file co-location rules
-- Styling approach
-- Testing framework and conventions observed
-
-### Current State
-- Active branch, recent frontend changes
-- Any immediate concerns (missing types, deprecated patterns, etc.)
-
-**Make this summary easy to scan - use bullet points and clear headers.**
+Use bullets e títulos — o relatório precisa ser escaneável.

@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Revisão técnica dos arquivos alterados de uma API .NET em Clean Architecture — violações de camada, bugs, segurança e aderência aos padrões do projeto — com relatório salvo. Use antes de commitar, como portão de qualidade.
+description: Revisão técnica dos arquivos alterados — API .NET em Clean Architecture e tela Angular + PO-UI — cobrindo violações de camada, bugs, segurança e aderência aos padrões do projeto, com relatório salvo. Use antes de commitar, como portão de qualidade.
 argument-hint: [CHAVE-JIRA]
 ---
 
@@ -16,6 +16,16 @@ dela como referência do que **deveria** ter sido feito.
 - O melhor código costuma ser o que não precisou existir.
 - Consistência com o padrão do projeto vale mais que elegância pessoal.
 
+## Passo 0 — Delimitar a revisão
+
+Veja o que mudou e decida quais trilhas revisar:
+
+- Arquivos `.cs` → **trilha API** (seções 1 a 9 abaixo)
+- Arquivos `.ts` / `.html` / `.css` sob `src/app/` → **trilha Frontend** (seção 10)
+- Os dois → revise as duas. Numa feature fullstack, delegue em paralelo aos agentes
+  `code-reviewer` (API) e `angular-code-reviewer` (tela), cada um no seu conjunto de arquivos, e
+  consolide os dois relatórios.
+
 ## Passo 1 — Contexto
 
 Leia antes de julgar qualquer linha:
@@ -23,7 +33,8 @@ Leia antes de julgar qualquer linha:
 - `.claude/references/clean-architecture-dotnet.md`
 - `.claude/references/backend-api-best-practices.md`
 - `.claude/references/dotnet-testing-standards.md`
-- `feature.md` e `plan.md` da feature (quando houver chave)
+- `.claude/references/angular-po-ui.md` e `angular-testing-standards.md` (se houver mudança de tela)
+- `feature.md`, `plan.md` e `plan-ui.md` da feature (quando houver chave)
 
 ## Passo 2 — Levantar as mudanças
 
@@ -107,18 +118,47 @@ falso positivo.
 Compare com o `plan.md`: tarefa não feita, tarefa feita diferente sem registro de divergência,
 critério de aceite sem cobertura.
 
+### 10. Frontend (Angular + PO-UI)
+
+Só quando houver mudança em `src/app/`. Detalhamento completo no agente `angular-code-reviewer`;
+o essencial:
+
+- **Estrutura**: feature isolada em `features/<f>/` com `models/`, `services/`, `pages/`,
+  `*.routes.ts`; feature importando de outra feature é violação; rota lazy registrada
+- **Tipagem**: `any` é achado, sempre; model espelhando o DTO em camelCase — **divergência de
+  campo é crítica** (quebra em runtime, não na compilação); `PoTableColumn[]`/`PoPageAction[]`
+  tipados
+- **Service**: `inject(HttpClient)`, URL de `environment`, **sem `subscribe`**, sem `catchError`
+  que engole erro e devolve lista vazia
+- **PO-UI**: `provideAnimations()` presente; imports granulares; nenhum input inventado (confirme
+  em `node_modules/@po-ui/ng-components`); `div` + CSS reimplementando componente que o PO já
+  tem; `po-page-dynamic-*` contra API que não responde `{ items, hasNext }`
+- **Formulário**: reactive forms; validações espelhando a API; `p-required` nos obrigatórios;
+  submit bloqueado durante a requisição
+- **Erro duplicado**: `notification.error(...)` no componente quando o interceptor já notifica —
+  o usuário vê dois toasts
+- **Ação destrutiva** sem `PoDialogService.confirm`
+- **Change detection**: `OnPush` ausente; `subscribe` aninhado; subscription sem
+  `takeUntilDestroyed`; função chamada no template
+- **Template**: `*ngIf`/`*ngFor` em código novo; `@for` sem `track`
+- **Testes**: standalone em `imports`, `provideNoopAnimations()`, `http.verify()`,
+  `fixture.detectChanges()` presente
+
 ## Passo 4 — Confirmar que o problema é real
 
 Não reporte suspeita como fato:
 - Rode o teste específico para confirmar o bug
 - Confira o caminho de arquivo e o registro no DI
 - Verifique se a migration existe de fato em `Migrations/`
+- No frontend: rode `npx tsc --noEmit`, e confirme input de componente PO em
+  `node_modules/@po-ui/ng-components` antes de afirmar que não existe
 
 Achado não confirmado vai marcado como **PLAUSÍVEL**, não como confirmado.
 
 ## Saída
 
-Salve em `.claude/code-reviews/<CHAVE-ou-nome>.md` (e cite o caminho na resposta).
+Salve em `.claude/code-reviews/<CHAVE-ou-nome>.md` (e cite o caminho na resposta). Numa feature
+fullstack, separe os achados em **API** e **Frontend**, mas dê **um único veredito**.
 
 **Estatísticas:** arquivos modificados / adicionados / removidos, linhas +/-.
 

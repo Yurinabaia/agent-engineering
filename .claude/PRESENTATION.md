@@ -1,7 +1,10 @@
 # Roteiro — Construção de API em Clean Architecture com Agentes
 
-Duração-alvo: **45–60 min** (30 min de conteúdo + demo ao vivo + perguntas).
-Repositório de exemplo: estrutura de `DTASkills.Api` — .NET 10, PostgreSQL, EF Core, xUnit.
+Duração-alvo: **60–75 min** (35 min de conteúdo + demo ao vivo + perguntas).
+Corte a trilha de frontend (Blocos 3 e 7) se tiver só 45 min — a narrativa fecha sem ela.
+
+Exemplo: estrutura de `DTASkills.Api` (.NET 10, PostgreSQL, EF Core, xUnit) + frontend
+Angular 20 standalone com **PO-UI** consumindo a mesma API.
 
 ---
 
@@ -14,6 +17,9 @@ Repositório de exemplo: estrutura de `DTASkills.Api` — .NET 10, PostgreSQL, E
 - [ ] `/feature-status` roda e mostra a esteira
 - [ ] Terminal com fonte grande; janela do editor lado a lado para ver os arquivos surgindo
 - [ ] Feature de reserva: `features/DEMO-101-cadastro-produtos/feature.md` (não depende de rede)
+- [ ] Frontend: `npm install` já rodado e `npm start` subindo sem erro
+- [ ] Versão do PO-UI conferida (`grep po-ui package.json`) — a demo cita componentes por nome
+- [ ] Navegador aberto no app, com o tema do PO carregado
 
 ---
 
@@ -42,7 +48,27 @@ Abra `CLAUDE.md` §1 e §2 no telão.
 
 Frase-âncora: *"a arquitetura não é o obstáculo do agente — a arquitetura **não documentada** é."*
 
-## Bloco 3 — As cinco primitivas da camada de IA (7 min)
+## Bloco 3 — A mesma ideia do outro lado (4 min)
+
+Abra `CLAUDE.md` §1 "Frontend" e mostre o paralelo direto:
+
+| API | Frontend |
+|---|---|
+| `Services/Produtos/` | `features/produtos/services/` |
+| `Dtos/Produtos/ProdutoDto.cs` | `models/produto.model.ts` |
+| `Controllers/ProdutosController.cs` | `pages/produto-list/` + `pages/produto-form/` |
+| `IUnitOfWork` isola persistência | `HttpClient` isolado no service |
+| 9 pontos de toque | 7 pontos de toque |
+
+**O ponto que amarra tudo:** o `ErrorHandlingFilterAttribute` transforma a exceção em
+`ProblemDetails` (RFC 7807); o `errorInterceptor` do Angular lê o `title` e mostra no
+`PoNotificationService`. **Um contrato de erro, ponta a ponta** — e a consequência prática é que
+*nenhum componente Angular trata erro de API*.
+
+Mostre o `error.interceptor.ts` em `references/angular-po-ui.md` §5 ao lado do
+`ErrosException` em `references/clean-architecture-dotnet.md` §10. São dez linhas de cada lado.
+
+## Bloco 4 — As cinco primitivas da camada de IA (7 min)
 
 | Primitiva | Arquivo | Quando age |
 |---|---|---|
@@ -62,7 +88,7 @@ echo '{"tool_name":"Write","tool_input":{"file_path":"x/Migrations/20260101_Foo.
 `exit=2` → o agente é impedido de escrever migration à mão e recebe o motivo.
 *"Regra pede. Hook garante."*
 
-## Bloco 4 — A esteira Jira → código (5 min)
+## Bloco 5 — A esteira Jira → código (5 min)
 
 Abra `references/jira-feature-workflow.md` e mostre o diagrama.
 
@@ -71,9 +97,20 @@ O que não está no `feature.md` não chega ao `plan.md`; o que não está no `p
 É isso que impede o agente de "inventar de passagem".
 
 Mostre `features/DEMO-101-cadastro-produtos/feature.md`: regras de negócio **com status HTTP**,
-critérios de aceite **verificáveis**, modelo de dados com colunas em snake_case.
+critérios de aceite **verificáveis**, modelo de dados com colunas em snake_case — e, mais abaixo,
+o **Escopo Frontend**: telas, rotas, o componente PO de cada campo e os critérios de aceite de
+tela (CAT1..CAT7).
 
-## Bloco 5 — DEMO AO VIVO (20 min)
+Uma issue, duas trilhas, uma pasta:
+
+```
+DEMO-101-cadastro-produtos/
+  feature.md                      ← o requisito inteiro
+  plan.md      checklist.md       ← trilha API
+  plan-ui.md   checklist-ui.md    ← trilha tela
+```
+
+## Bloco 6 — DEMO AO VIVO: a API (20 min)
 
 ### Passo 1 — Onde estamos (1 min)
 
@@ -137,7 +174,56 @@ Deixe rodar e narre as camadas conforme aparecem. Aponte:
 
 Mostre o relatório e o portão verde. Se a revisão achar algo, melhor ainda: `/code-review-fix`.
 
-## Bloco 6 — O loop que fecha (5 min)
+## Bloco 7 — DEMO AO VIVO: a tela (12 min)
+
+### Passo 7 — Contexto do frontend (2 min)
+
+```
+/prime-frontend
+```
+
+Narre: ele lê `package.json` (versões de Angular e PO-UI), o `app.config.ts` — conferindo o
+`provideAnimations()` que o PO exige — os interceptors, e **uma tela completa** como molde.
+
+### Passo 8 — Planejar a tela (4 min)
+
+```
+/plan-feature-ui DEMO-101
+```
+
+Abra o `plan-ui.md`. Destaque três coisas:
+
+1. **A tabela de contrato da API** — o agente foi ao `ProdutosController.cs` e ao `ProdutoDto.cs`
+   confirmar rota, verbo, policy e formato de resposta. Não presumiu.
+2. **O mapa campo → componente PO → validação** — `Preco` virou `po-decimal` com
+   `p-decimals-length="2"` e `Validators.min(0.01)`, espelhando a RN3 da API.
+3. **O mapa de erros** — SKU duplicado (409) vira toast, via interceptor, sem uma linha de
+   tratamento na tela.
+
+Se sobrar tempo, mostre o risco registrado no plano: `po-page-dynamic-table` exigiria a resposta
+`{ items, hasNext }` do PO, que esta API não devolve — então o plano escolheu
+`po-page-list` + `po-table` **e escreveu o porquê**.
+
+### Passo 9 — Executar a tela (6 min)
+
+```
+/execute-ui DEMO-101
+```
+
+Narre as etapas: model → service → rotas → listagem → formulário → testes, com `npx tsc --noEmit`
+entre elas. Aponte:
+- o model espelhando o DTO em camelCase
+- o service sem nenhum `subscribe` (quem assina é o componente)
+- a exclusão passando por `PoDialogService.confirm`
+- **nenhum `notification.error` no componente** — o interceptor já faz isso
+
+Feche abrindo a tela no navegador: liste, crie, e force um SKU duplicado para ver o toast com a
+mensagem que veio **da regra de negócio do service C#**.
+
+> **Se o tempo apertar:** pule o Passo 9 e mostre a tela já pronta + o `checklist-ui.md`.
+> O Passo 8 é o que carrega a mensagem; o 9 é a prova.
+
+## Bloco 8 — O loop que fecha (5 min)
 
 ```
 /execution-report DEMO-101
@@ -149,15 +235,17 @@ plano; divergência ruim vira regra no `CLAUDE.md`; passo manual repetido 3 veze
 
 *"A camada de IA não nasce pronta. Ela é depurada como código."*
 
-## Bloco 7 — Fechamento (3 min)
+## Bloco 9 — Fechamento (3 min)
 
-Três coisas para levar para casa:
+Quatro coisas para levar para casa:
 
 1. **Documentar o padrão vale mais que escolher o padrão.** Clean Architecture funciona muito bem
    com agentes — desde que os 9 pontos de toque estejam escritos.
 2. **O contrato entre etapas é o que segura o escopo.** Requisito → plano → código, cada um por
    escrito.
-3. **Onde não pode falhar, use hook, não prompt.**
+3. **O contrato entre as pontas é o que segura a integração.** O DTO manda no model; o
+   `ProblemDetails` manda no toast. Divergiu, quem está errado é o frontend.
+4. **Onde não pode falhar, use hook, não prompt.**
 
 ---
 
@@ -178,7 +266,21 @@ Perde-se a rastreabilidade automática, não a esteira.
 
 **"Isso substitui o desenvolvedor?"**
 Não. Ele decide o requisito, aprova o plano e revisa a revisão — os três pontos onde errar sai
-caro. O agente faz as 9 tarefas mecânicas com fidelidade, que é onde a atenção humana escorre.
+caro. O agente faz as 16 tarefas mecânicas com fidelidade, que é onde a atenção humana escorre.
+
+**"Por que PO-UI e não Material/PrimeNG?"**
+A escolha do design system é indiferente para o método — troque `references/angular-po-ui.md` pelo
+equivalente da sua biblioteca. O que importa é que o catálogo "para X, use o componente Y" esteja
+escrito; sem isso o agente reinventa tabela com `div`.
+
+**"O agente inventa componente do PO que não existe?"**
+Inventa, se você deixar. Por isso a skill e o agente mandam **conferir a versão instalada** em
+`node_modules/@po-ui/ng-components` antes de usar API menos comum — e o `npm run build` pega o
+resto, porque erro de template só aparece no build.
+
+**"Dá para rodar API e tela em paralelo?"**
+A implementação, não — a tela depende do contrato da API. A **revisão**, sim: `code-reviewer` e
+`angular-code-reviewer` rodam ao mesmo tempo, cada um no seu conjunto de arquivos.
 
 ---
 
@@ -189,4 +291,7 @@ caro. O agente faz as 9 tarefas mecânicas com fidelidade, que é onde a atenç�
 | MCP do Atlassian fora | Use `DEMO-101`, já importada |
 | Sem banco / `dotnet ef` falha | Pule a migration; mostre o comando e o hook que a exige |
 | `/execute` travar ou demorar | Corte para o `checklist.md` e mostre o resultado de uma execução anterior |
+| `npm install` / build da tela falha | Pule o Passo 9; o `plan-ui.md` do Passo 8 já carrega a mensagem |
+| API não sobe para a tela consumir | Mostre o toast de erro de conexão — é o CAT6, e prova o interceptor |
+| Tempo estourando | Corte os Blocos 3 e 7 inteiros; a apresentação fecha só com a API |
 | Sem rede | Tudo roda local, exceto o passo do Jira |

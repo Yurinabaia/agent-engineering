@@ -56,6 +56,40 @@ Anexos, mockups e exemplos de payload relevantes entram aqui.}
 Tabela: `{snake_case}` — Precisa de auditoria (`rec_created_by/on`, `rec_modified_by/on`)?
 {sim/não}
 
+### Escopo Frontend (Angular + PO-UI)
+
+> Preencha apenas se a feature tiver tela. Só backend? Escreva "Sem escopo de tela" e siga.
+
+#### Telas e Rotas
+
+| Tela | Rota | Descrição | Permissão |
+|---|---|---|---|
+| Listagem de {recurso} | `/{recurso}` | Lista, filtra e dá acesso às ações | {perfil} |
+| Cadastro/Edição | `/{recurso}/novo` e `/{recurso}/:id` | Formulário | {perfil} |
+
+#### Campos da Tela
+
+| Campo | Componente PO | Obrigatório | Editável | Observação |
+|---|---|---|---|---|
+| {campo} | `po-input` / `po-decimal` / `po-select` / `po-switch` | sim/não | sim/não | {máscara, limite, opções} |
+
+#### Ações do Usuário
+
+- {ação} → {resultado esperado, mensagem de sucesso}
+- {ação destrutiva} → exige confirmação (`PoDialogService.confirm`)
+
+#### Endpoints Consumidos
+
+| Método | Rota | Usado em |
+|---|---|---|
+| GET | `api/{recurso}` | listagem |
+| POST | `api/{recurso}` | formulário (novo) |
+
+#### Critérios de Aceite de Tela
+
+- [ ] CAT1: {critério verificável na interface}
+- [ ] CAT2: {mensagem de erro da API aparece como toast}
+
 ### Impacto nas Camadas
 
 - **Domain**: {entidades/enums novos ou alterados}
@@ -63,7 +97,9 @@ Tabela: `{snake_case}` — Precisa de auditoria (`rec_created_by/on`, `rec_modif
 - **Infrastructure**: {DbSet, índices, migration, integrações}
 - **Api**: {controller, policies, rotas}
 - **Contracts**: {contratos públicos, paginação}
-- **Testes**: {classes de teste}
+- **Testes (API)**: {classes de teste}
+- **Frontend**: {feature Angular, telas, service, rota lazy, item de menu}
+- **Testes (UI)**: {specs de service, listagem e formulário}
 
 ## Fora de Escopo
 
